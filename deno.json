@@ -1,8 +1,8 @@
 {
-    "fmt": {
-        "semiColons": false,
-        "useTabs": true,
-        "indentWidth": 4,
-        "singleQuote": true
-    }
+	"fmt": {
+		"semiColons": false,
+		"useTabs": true,
+		"indentWidth": 4,
+		"singleQuote": true
+	}
 }
