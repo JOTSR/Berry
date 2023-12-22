@@ -1,0 +1,8 @@
+{
+	"recommendations": [
+		"aaron-bond.better-comments",
+		"denoland.vscode-deno",
+		"bierner.github-markdown-preview",
+		"yoavbls.pretty-ts-errors"
+	]
+}
