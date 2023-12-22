@@ -1,12 +1,5 @@
-//https://www.kernel.org/doc/Documentation/pwm.txt
-
 import { constructKey, GlobalPinLock, globalPinLock } from '../../utils.ts'
 import { gpioPaths } from '../gpio/src/gpio_paths.ts'
-
-/*
-0: [18, 12]
-1: [13, 19]
-*/
 
 const pwmId = Object.freeze({
 	0: [
@@ -31,7 +24,9 @@ function pinToChannel(id: PwmId): 0 | 1 {
 	return 1
 }
 
-///sys/class/pwm/pwmchip0
+/**
+ * See {@link https://www.kernel.org/doc/Documentation/pwm.txt} for details.
+ */
 const pwnPaths = {
 	pwm(id: PwmId) {
 		return {
@@ -51,7 +46,22 @@ const pwnPaths = {
 }
 
 type ns = number
+type percentage = number
 
+/**
+ * Control PWM GPIOs of the rapsberry pi board.
+ *
+ * @example
+ * ```ts
+ * using pwm0 = PWM.connect({ id: 12 })
+ *
+ * await pwm0.setPeriod(15) //15ns period
+ * await pwm0.setDutyCycle(0.5) //7ns HIGH - 7ns LOW
+ * await pwm0.enable()
+ *
+ * //pwm0 is automatically released and clean outside of the scope
+ * ```
+ */
 export class PWM {
 	#period: ns = 0
 	#dutyCycle: ns = 0
@@ -59,6 +69,22 @@ export class PWM {
 	#id: PwmId
 	#lock: GlobalPinLock
 
+	/**
+	 * Connect to the PWM channel.
+	 * @param {{id: PwmId}} config - Configuration of the PWM channel.
+	 * @returns PWM
+	 *
+	 * @example
+	 * ```ts
+	 * using pwm0 = PWM.connect({ id: 12 })
+	 *
+	 * await pwm0.setPeriod(15) //15ns period
+	 * await pwm0.setDutyCycle(0.5) //7ns HIGH - 7ns LOW
+	 * await pwm0.enable()
+	 *
+	 * //pwm0 is automatically released and clean outside of the scope
+	 * ```
+	 */
 	static async connect({ id }: { id: PwmId }) {
 		const lock = globalPinLock(id)
 		await Deno.writeTextFile(
@@ -68,6 +94,9 @@ export class PWM {
 		return new PWM({ id }, constructKey, lock)
 	}
 
+	/**
+	 * @throws pwm cannot be instancied manually, use PWM.connect instead.
+	 */
 	constructor(
 		{ id }: { id: PwmId },
 		_constructKey: symbol,
@@ -82,22 +111,52 @@ export class PWM {
 		this.#id = id
 	}
 
-	setDutyCycle(duration: ns) {
-		this.#dutyCycle = duration
+	/**
+	 * Set the dutycycle of the PWM channel
+	 * @param {percentage} duration - Dutycycle percentage of the period. ⚠️ Must be between 0 and 1 includes.
+	 *
+	 * @example
+	 * ```ts
+	 * await pwm0.setDutyCycle(0.5) //50% of the period HIGH - 50% of the period LOW
+	 * ```
+	 */
+	setDutyCycle(percentage: percentage) {
+		if (percentage < 0 || percentage > 1) {
+			throw new RangeError(
+				`dutycyle must be between 0 and 1, not ${percentage}`,
+			)
+		}
+		this.#dutyCycle = percentage
 		return Deno.writeTextFile(
 			pwnPaths.pwm(this.#id).dutyCycle,
-			duration.toString(),
+			(percentage * this.#period).toString(),
 		)
 	}
 
-	setPeriod(duration: ns) {
+	/**
+	 * Set the period of the PWM channel
+	 * @param {ns} duration - Period duration in nanoseconds.
+	 *
+	 * @example
+	 * ```ts
+	 * await pwm0.setPeriod(15) //15ns period
+	 * ```
+	 */
+	async setPeriod(duration: ns) {
+		// If period increase we can update dutycycle here
+		if (duration > this.#period) this.setDutyCycle(this.#dutyCycle)
 		this.#period = duration
-		return Deno.writeTextFile(
+		await Deno.writeTextFile(
 			pwnPaths.pwm(this.#id).period,
 			duration.toString(),
 		)
+		// If period decrease we update dutycycle here
+		return this.setDutyCycle(this.#dutyCycle)
 	}
 
+	/**
+	 * Get info of the PWM channel
+	 */
 	get infos() {
 		return Object.freeze({
 			dutyCycle: this.#dutyCycle,
@@ -109,18 +168,30 @@ export class PWM {
 		})
 	}
 
+	/**
+	 * Enable current PWM channel.
+	 *
+	 * @example
+	 * ```ts
+	 * await pwm0.enable() //channel0 is enabled
+	 * ```
+	 */
 	enable() {
 		this.#enabled = true
 		return Deno.writeTextFile(pwnPaths.pwm(this.#id).enable, '1')
 	}
 
+	/**
+	 * Disbale current PWM channel.
+	 *
+	 * @example
+	 * ```ts
+	 * await pwm0.disable() //channel0 is disabled
+	 * ```
+	 */
 	disable() {
 		this.#enabled = false
 		return Deno.writeTextFile(pwnPaths.pwm(this.#id).enable, '0')
-	}
-
-	get enabled() {
-		return this.#enabled
 	}
 
 	[Symbol.asyncDispose]() {
