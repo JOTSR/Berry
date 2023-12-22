@@ -111,12 +111,12 @@ export class PWM {
 
 	enable() {
 		this.#enabled = true
-		Deno.writeTextFile(pwnPaths.pwm(this.#id).enable, '1')
+		return Deno.writeTextFile(pwnPaths.pwm(this.#id).enable, '1')
 	}
 
 	disable() {
 		this.#enabled = false
-		Deno.writeTextFile(pwnPaths.pwm(this.#id).enable, '0')
+		return Deno.writeTextFile(pwnPaths.pwm(this.#id).enable, '0')
 	}
 
 	get enabled() {
