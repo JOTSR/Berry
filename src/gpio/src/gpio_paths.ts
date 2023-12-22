@@ -1,5 +1,8 @@
 import { PinId } from '../../../types.ts'
 
+/**
+ * See {@link //https://www.kernel.org/doc/Documentation/gpio/sysfs.txt} for more details.
+ */
 export const gpioPaths = {
 	main: '/sys/class/gpio',
 	export: '/sys/class/gpio/export',
