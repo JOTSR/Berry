@@ -1,6 +1,6 @@
-import { gpioPaths } from './src/gpio_paths.ts'
 import { PinId } from '../../types.ts'
 import { constructKey, GlobalPinLock, globalPinLock } from '../../utils.ts'
+import { gpioPaths } from './src/gpio_paths.ts'
 
 //https://www.kernel.org/doc/Documentation/gpio/sysfs.txt
 
