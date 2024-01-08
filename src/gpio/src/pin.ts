@@ -54,11 +54,7 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 	) {
 		return Deno.writeTextFile(
 			gpioPaths.pin(id).direction,
-			direction === Pin.Direction.IN
-				? 'in'
-				: direction === Pin.Direction.OUT
-				? 'out'
-				: 'inout',
+			paramaterToSys(direction),
 		)
 	}
 
@@ -94,7 +90,7 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 	>(value: Value) {
 		return Deno.writeTextFile(
 			gpioPaths.pin(this.#id).value,
-			value === Pin.Value.HIGH ? '1' : '0',
+			paramaterToSys(value),
 		)
 	}
 
@@ -109,7 +105,7 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 		}
 		const value = await Deno.readTextFile(gpioPaths.pin(this.#id).value)
 		//@ts-ignore generic is only used as type guard for user
-		return value === '1' ? Pin.Value.HIGH : Pin.Value.LOW
+		return paramaterToSys(value)
 	}
 
 	// async watch({ edge, signal }: { edge: PinEdge, signal?: AbortSignal }) {
@@ -131,15 +127,69 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 	}
 }
 
-// function edgeSymbolToSys(edge: PinEdge) {
-//     switch (edge) {
-//         case Pin.Edge.BOTH:
-//             return 'both'
-//         case Pin.Edge.FALLING:
-//             return 'falling'
-//         case Pin.Edge.RISING:
-//             return 'rising'
-//         default:
-//             return 'none'
-//     }
-// }
+function paramaterToSys<T extends PinDirection | PinValue | PinEdge>(
+	parameter: T,
+): string {
+	//Direction
+	if (parameter in Pin.Direction) {
+		switch (parameter) {
+			case Pin.Direction.IN:
+				return 'in'
+			case Pin.Direction.OUT:
+				return 'out'
+			case Pin.Direction.INOUT:
+				return 'inout'
+		}
+	}
+
+	//Value
+	if (parameter in Pin.Value) {
+		switch (parameter) {
+			case Pin.Value.HIGH:
+				return '1'
+			case Pin.Value.LOW:
+				return '0'
+		}
+	}
+
+	//Edge
+	if (parameter in Pin.Edge) {
+		switch (parameter) {
+			case Pin.Edge.BOTH:
+				return 'both'
+			case Pin.Edge.FALLING:
+				return 'falling'
+			case Pin.Edge.NONE:
+				return 'none'
+			case Pin.Edge.RISING:
+				return 'rising'
+		}
+	}
+	throw new TypeError(`unknown parameter ${String(parameter)}`)
+}
+
+function _sysToParameter(parameter: string) {
+	//Direction
+	if (parameter === 'in') return Pin.Direction.IN
+	if (parameter === 'out') return Pin.Direction.OUT
+	if (parameter === 'inout') return Pin.Direction.INOUT
+
+	//Value
+	if (parameter === '1') return Pin.Value.HIGH
+	if (parameter === '0') return Pin.Value.LOW
+
+	//Edge
+	if (['both', 'falling', 'none', 'rising'].includes(parameter)) {
+		switch (parameter) {
+			case 'both':
+				return Pin.Edge.BOTH
+			case 'falling':
+				return Pin.Edge.FALLING
+			case 'none':
+				return Pin.Edge.NONE
+			case 'rising':
+				return Pin.Edge.RISING
+		}
+	}
+	throw new TypeError(`unknown parameter ${String(parameter)}`)
+}
