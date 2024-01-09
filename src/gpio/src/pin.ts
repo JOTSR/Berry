@@ -174,38 +174,23 @@ function paramaterToSys<T extends PinDirection | PinValue | PinEdge>(
 ): string {
 	//Direction
 	if (parameter in Pin.Direction) {
-		switch (parameter) {
-			case Pin.Direction.IN:
-				return 'in'
-			case Pin.Direction.OUT:
-				return 'out'
-			case Pin.Direction.INOUT:
-				return 'inout'
-		}
+		if (parameter === Pin.Direction.IN) return 'in'
+		if (parameter === Pin.Direction.OUT) return 'out'
+		if (parameter === Pin.Direction.INOUT) return 'inout'
 	}
 
 	//Value
 	if (parameter in Pin.Value) {
-		switch (parameter) {
-			case Pin.Value.HIGH:
-				return '1'
-			case Pin.Value.LOW:
-				return '0'
-		}
+		if (parameter === Pin.Value.HIGH) return '1'
+		if (parameter === Pin.Value.LOW) return '0'
 	}
 
 	//Edge
 	if (parameter in Pin.Edge) {
-		switch (parameter) {
-			case Pin.Edge.BOTH:
-				return 'both'
-			case Pin.Edge.FALLING:
-				return 'falling'
-			case Pin.Edge.NONE:
-				return 'none'
-			case Pin.Edge.RISING:
-				return 'rising'
-		}
+		if (parameter === Pin.Edge.BOTH) return 'both'
+		if (parameter === Pin.Edge.FALLING) return 'falling'
+		if (parameter === Pin.Edge.NONE) return 'none'
+		if (parameter === Pin.Edge.RISING) return 'rising'
 	}
 	throw new TypeError(`unknown parameter ${String(parameter)}`)
 }
