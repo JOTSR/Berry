@@ -112,7 +112,7 @@ export class PWM {
 	}
 
 	/**
-	 * Set the dutycycle of the PWM channel
+	 * Set the dutycycle of the PWM channel.
 	 * @param {percentage} duration - Dutycycle percentage of the period. ⚠️ Must be between 0 and 1 includes.
 	 *
 	 * @example
@@ -134,7 +134,7 @@ export class PWM {
 	}
 
 	/**
-	 * Set the period of the PWM channel
+	 * Set the period of the PWM channel.
 	 * @param {ns} duration - Period duration in nanoseconds.
 	 *
 	 * @example
@@ -155,7 +155,7 @@ export class PWM {
 	}
 
 	/**
-	 * Get info of the PWM channel
+	 * Get info of the PWM channel.
 	 */
 	get infos() {
 		return Object.freeze({
