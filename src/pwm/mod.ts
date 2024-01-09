@@ -53,7 +53,7 @@ type percentage = number
  *
  * @example
  * ```ts
- * using pwm0 = PWM.connect({ id: 12 })
+ * using pwm0 = await PWM.connect({ id: 12 })
  *
  * await pwm0.setPeriod(15) //15ns period
  * await pwm0.setDutyCycle(0.5) //7ns HIGH - 7ns LOW
@@ -76,7 +76,7 @@ export class PWM {
 	 *
 	 * @example
 	 * ```ts
-	 * using pwm0 = PWM.connect({ id: 12 })
+	 * using pwm0 = await PWM.connect({ id: 12 })
 	 *
 	 * await pwm0.setPeriod(15) //15ns period
 	 * await pwm0.setDutyCycle(0.5) //7ns HIGH - 7ns LOW

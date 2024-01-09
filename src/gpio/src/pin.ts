@@ -18,7 +18,7 @@ export interface Pin<Id extends PinId, Direction extends PinDirection> {
  *
  * @example
  * ```ts
- * using pin = Pin.connect({ id: 1, direction: Pin.Direction.INOUT })
+ * using pin = await Pin.connect({ id: 1, direction: Pin.Direction.INOUT })
  *
  * await pin.read() //Pin.Value.(LOW | HIGH)
  * await pin.write(Pin.Value.LOW) //Set pin to LOW
@@ -52,7 +52,7 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 	 *
 	 * @example
 	 * ```ts
-	 * using pin = Pin.connect({ id: 1, direction: Pin.Direction.INOUT })
+	 * using pin = await Pin.connect({ id: 1, direction: Pin.Direction.INOUT })
 	 *
 	 * await pin.read() //Pin.Value.(LOW | HIGH)
 	 * await pin.write(Pin.Value.LOW) //Set pin to LOW
