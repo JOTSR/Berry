@@ -104,8 +104,7 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 			)
 		}
 		const value = await Deno.readTextFile(gpioPaths.pin(this.#id).value)
-		//@ts-ignore generic is only used as type guard for user
-		return paramaterToSys(value)
+		return sysToParameter(value) as Value
 	}
 
 	// async watch({ edge, signal }: { edge: PinEdge, signal?: AbortSignal }) {
@@ -168,7 +167,7 @@ function paramaterToSys<T extends PinDirection | PinValue | PinEdge>(
 	throw new TypeError(`unknown parameter ${String(parameter)}`)
 }
 
-function _sysToParameter(parameter: string) {
+function sysToParameter(parameter: string) {
 	//Direction
 	if (parameter === 'in') return Pin.Direction.IN
 	if (parameter === 'out') return Pin.Direction.OUT
