@@ -13,6 +13,19 @@ export interface Pin<Id extends PinId, Direction extends PinDirection> {
 	Edge: PinEdge
 }
 
+/**
+ * Control Digital GPIOs of the rapsberry pi board.
+ *
+ * @example
+ * ```ts
+ * using pin = Pin.connect({ id: 1, direction: Pin.Direction.INOUT })
+ *
+ * await pin.read() //Pin.Value.(LOW | HIGH)
+ * await pin.write(Pin.Value.LOW) //Set pin to LOW
+ *
+ * //pin is automatically released and clean outside of the scope
+ * ```
+ */
 export class Pin<Id extends PinId, Direction extends PinDirection> {
 	static Direction = {
 		IN: Symbol('pin_direction_in'),
@@ -32,6 +45,21 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 		BOTH: Symbol('pin_edge_both'),
 	}
 
+	/**
+	 * Connect to the GPIO pin.
+	 * @param {{id: PinId, direction: PinDirection}} config - Configuration of the GPIO pin.
+	 * @returns Pin
+	 *
+	 * @example
+	 * ```ts
+	 * using pin = Pin.connect({ id: 1, direction: Pin.Direction.INOUT })
+	 *
+	 * await pin.read() //Pin.Value.(LOW | HIGH)
+	 * await pin.write(Pin.Value.LOW) //Set pin to LOW
+	 *
+	 * //pin is automatically released and clean outside of the scope
+	 * ```
+	 */
 	static async connect<Id extends PinId, Direction extends PinDirection>(
 		{ id, direction, _activeLow }: {
 			id: Pin<Id, Direction>['Id']
@@ -62,6 +90,9 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 	#direction: Direction
 	#lock: GlobalPinLock
 
+	/**
+	 * @throws pwm cannot be instancied manually, use PIN.connect instead.
+	 */
 	constructor(
 		{ id, direction }: { id: Id; direction: Direction },
 		_constructKey: symbol,
@@ -77,6 +108,9 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 		this.#lock = lock
 	}
 
+	/**
+	 * Get info of the GPIO pin
+	 */
 	get info() {
 		return Object.freeze({
 			id: this.#id,
@@ -84,6 +118,15 @@ export class Pin<Id extends PinId, Direction extends PinDirection> {
 		})
 	}
 
+	/**
+	 * Write value to the pin if configured as output or inout.
+	 * @param value PIN.Value.(HIGH | LOW)
+	 *
+	 * @example
+	 * ```ts
+	 *
+	 * ```
+	 */
 	write<
 		Value extends Direction extends typeof Pin.Direction['OUT'] ? never
 			: PinValue,
